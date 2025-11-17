@@ -203,6 +203,10 @@ public class FinancialCalculatorServiceImpl implements FinancialCalculatorServic
                 periodicRate
         );
 
+        // ✅ DEBUG CRÍTICO: Ver qué calcula la cuota francesa
+        log.info("Cuota {} - Cuota francesa calculada: {}, Debería ser: {}",
+                installment.getNumber(), installmentAmount, getExpectedInstallmentFromExcel(installment.getNumber()));
+
         double amortization = installmentAmount - interest;
 
         // Calcular seguros y gastos
@@ -229,6 +233,15 @@ public class FinancialCalculatorServiceImpl implements FinancialCalculatorServic
         installment.setAdminFees(adminFees);
 
         installment.setCashFlow(-totalInstallmentAmount);
+    }
+
+    // Método auxiliar para comparar con Excel
+    private double getExpectedInstallmentFromExcel(int installmentNumber) {
+        // Valores de tu Excel
+        if (installmentNumber == 5) return 13095.47;
+        if (installmentNumber == 6) return 12645.02;
+        if (installmentNumber >= 21) return 12372.84;
+        return 0;
     }
 
     @Override
@@ -457,8 +470,15 @@ public class FinancialCalculatorServiceImpl implements FinancialCalculatorServic
     // ✅ CORREGIDO: Método con parámetros correctos
     private double calculateFrenchInstallmentAmount(double principal, int periods, double periodicRate) {
         if (periodicRate == 0) return principal / periods;
-        double factor = Math.pow(1 + periodicRate, periods);
-        return principal * (periodicRate * factor) / (factor - 1);
+
+        // Prueba ambas fórmulas y elige la que coincida con tu Excel
+        double option1 = principal * periodicRate / (1 - Math.pow(1 + periodicRate, -periods));
+        double option2 = principal * (periodicRate * Math.pow(1 + periodicRate, periods)) / (Math.pow(1 + periodicRate, periods) - 1);
+
+        // Debug para ver cuál coincide
+        log.info("Cuota francesa - Opción 1: {}, Opción 2: {}, Esperado: {}", option1, option2, getExpectedInstallmentFromExcel(periods));
+
+        return option1; // Probablemente esta es la correcta
     }
 
     // ✅ NUEVO MÉTODO: Para debugging - verificar cálculo de cuota

@@ -225,8 +225,13 @@ public class PaymentPlan extends AuditableAbstractAggregateRoot<PaymentPlan> {
 
     public double getPeriodicRateForInstallment(int installmentNumber) {
         double annualRate = getAnnualRateForInstallment(installmentNumber);
-        double periodsPerYear = (double) daysPerYear / paymentFrequency;
-        return Math.pow(1 + annualRate, 1.0 / periodsPerYear) - 1;
+
+        // ✅ FÓRMULA CORRECTA: (1 + TEA)^(frecuencia/días_año) - 1
+        double frequencyRatio = (double) paymentFrequency / daysPerYear;
+        double exactPeriodicRate = Math.pow(1 + annualRate, frequencyRatio) - 1;
+
+        // ✅ REDONDEAR como tu Excel (5 decimales)
+        return Math.round(exactPeriodicRate * 100000.0) / 100000.0;
     }
 
     // Getters y Setters para costos
