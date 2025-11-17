@@ -242,6 +242,14 @@ public class FinancialCalculatorServiceImpl implements FinancialCalculatorServic
                 .mapToDouble(Installment::getAmortization)
                 .sum();
 
+        // ✅ FALTA: Sumar los prepagos a la amortización total
+        double totalPrepayments = paymentPlan.getInstallments().stream()
+                .mapToDouble(Installment::getPrepayment)
+                .sum();
+
+        // ✅ CORRECCIÓN CRÍTICA: Amortización total = amortización cuotas + prepagos
+        double totalAmortizationWithPrepayments = totalAmortization + totalPrepayments;
+
         // ✅ CORREGIDO: Incluir seguro riesgo de TODAS las cuotas
         double totalCreditLifeInsurance = paymentPlan.getInstallments().stream()
                 .mapToDouble(Installment::getCreditLifeInsurance)
@@ -262,7 +270,9 @@ public class FinancialCalculatorServiceImpl implements FinancialCalculatorServic
         // Log para debugging
         log.info("=== TOTALES CALCULADOS ===");
         log.info("Intereses: {}", totalInterest);
-        log.info("Amortización: {}", totalAmortization);
+        log.info("Amortización sin prepagos: {}", totalAmortization);
+        log.info("Total prepagos: {}", totalPrepayments);
+        log.info("Amortización TOTAL (con prepagos): {}", totalAmortizationWithPrepayments);
         log.info("Seguro desgravamen: {}", totalCreditLifeInsurance);
         log.info("Seguro riesgo: {}", totalRiskInsurance);
         log.info("Comisiones: {}", totalCommissions);
@@ -274,9 +284,9 @@ public class FinancialCalculatorServiceImpl implements FinancialCalculatorServic
                 .count();
         log.info("Cuotas con seguro riesgo: {}", cuotasConSeguroRiesgo);
 
-        // Asignar totales
+        // ✅ ASIGNAR TOTAL CORREGIDO
         paymentPlan.setTotalInterest(totalInterest);
-        paymentPlan.setTotalAmortization(totalAmortization);
+        paymentPlan.setTotalAmortization(totalAmortizationWithPrepayments);  // ← ¡ESTA ES LA CORRECCIÓN!
         paymentPlan.setTotalCreditLifeInsurance(totalCreditLifeInsurance);
         paymentPlan.setTotalRiskInsurance(totalRiskInsurance);
         paymentPlan.setTotalCommissions(totalCommissions);
