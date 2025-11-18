@@ -18,8 +18,16 @@ public class IamContextFacadeImpl implements IamContextFacade {
 
     @Override
     public Optional<User> fetchUserById(Long userId) {
-        return userQueryService.handle(new GetUserByIdQuery(userId));
-
+        if (userId == null || userId <= 0) {
+            return Optional.empty();
+        }
+        try {
+            var query = new GetUserByIdQuery(userId);
+            var result = userQueryService.handle(query);
+            return result;
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
 
