@@ -1,5 +1,6 @@
 package apx.inc.finance_web_services.property.application.internal.commandservices;
 
+import apx.inc.finance_web_services.client.application.internal.outboundservices.ExternalIamService;
 import apx.inc.finance_web_services.property.domain.model.aggregates.Property;
 import apx.inc.finance_web_services.property.domain.model.commands.CreatePropertyCommand;
 import apx.inc.finance_web_services.property.domain.model.commands.UpdatePropertyCommand;
@@ -16,10 +17,13 @@ import org.springframework.stereotype.Service;
 public class PropertyCommandServiceImpl implements PropertyCommandService {
 
     private final PropertyRepository propertyRepository;
+    private final ExternalIamService externalIamService;
 
     @Override
     public Long handle(CreatePropertyCommand command) {
         log.info("Creando nueva propiedad: {}", command.title());
+
+        externalIamService.fetchSalesManUserById(command.salesManId());
 
         Property property = new Property(command);
         Property savedProperty = propertyRepository.save(property);

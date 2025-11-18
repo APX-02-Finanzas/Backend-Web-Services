@@ -9,5 +9,5 @@ public interface IamContextFacade {
 
     Optional<User> fetchUserById(Long userId);
 
-
+    Optional<User> fetchSalesManUserById(Long salesManId);
 }
