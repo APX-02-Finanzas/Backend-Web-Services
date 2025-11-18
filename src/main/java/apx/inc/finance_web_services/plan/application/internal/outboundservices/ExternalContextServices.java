@@ -1,4 +1,4 @@
-package apx.inc.finance_web_services.plan.application.internal.outboundservices.acl;
+package apx.inc.finance_web_services.plan.application.internal.outboundservices;
 
 import apx.inc.finance_web_services.client.domain.model.aggregates.Client;
 import apx.inc.finance_web_services.client.interfaces.acl.ClientContextFacade;

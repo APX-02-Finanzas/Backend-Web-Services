@@ -9,7 +9,12 @@ import java.util.List;
 public class CreatePaymentPlanCommandFromResourceAssembler {
     public static CreatePaymentPlanCommand toCommandFromResource( CreatePaymentPlanResource resource) {
         return new CreatePaymentPlanCommand(
-                resource.assetSalePrice(),           // Precio de Venta del Activo
+                resource.clientId(),
+                resource.propertyId(),
+                resource.salesManId(),
+                resource.applyBono(),
+
+//                resource.assetSalePrice(),           // Precio de Venta del Activo
                 resource.downPaymentPercentage(),    // % Cuota Inicial
                 resource.years(),                    // Nº de Años
                 resource.paymentFrequency(),         // Frecuencia de pago (días)
@@ -31,7 +36,7 @@ public class CreatePaymentPlanCommandFromResourceAssembler {
                 resource.discountRate(),             // Tasa de descuento
 
 
-                resource.currency(),               // Moneda
+//                resource.currency(),               // Moneda
                 resource.interestRateType(),         // Tipo de tasa
 
 

@@ -4,40 +4,42 @@ import apx.inc.finance_web_services.plan.domain.model.valueobjects.*;
 
 import java.util.List;
 
+
 public record CreatePaymentPlanResource(
-        // Datos del préstamo
-        double assetSalePrice,
+        // ✅ DATOS DE CONTEXTO (igual que tu Command)
+        Long clientId,
+        Long propertyId,
+        Long salesManId,
+        boolean applyBono,
+
+        // ✅ DATOS DEL PRÉSTAMO (igual que tu Command)
         double downPaymentPercentage,
         int years,
         int paymentFrequency,
         int daysPerYear,
 
-        // Costos iniciales
+        // ✅ COSTOS INICIALES (igual que tu Command)
         double notarialCosts,
         double registryCosts,
         double appraisal,
         double studyCommission,
         double activationCommission,
 
-        // Costos periódicos
+        // ✅ COSTOS PERIÓDICOS (igual que tu Command)
         double periodicCommission,
         double postage,
         double administrationFees,
         double creditLifeInsurance,
         double riskInsurance,
 
-        // Costo oportunidad
+        // ✅ COSTO DE OPORTUNIDAD (igual que tu Command)
         double discountRate,
 
-        // Configuración
-        Currency currency,
-        InterestRateType interestRateType,
+        // ✅ CONFIGURACIÓN (igual que tu Command)
+        InterestRateType interestRateType,  // String desde frontend
 
-
-        // Periodos de gracia (opcional)
+        // ✅ OPCIONALES (igual que tu Command)
         List<GracePeriodConfig> gracePeriods,
-
-        // Prepagos (opcional)
         List<PrepaymentConfig> prepayments,
 
         double annualInterestRate,

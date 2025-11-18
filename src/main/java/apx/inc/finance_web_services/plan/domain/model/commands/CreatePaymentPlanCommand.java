@@ -6,8 +6,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public record CreatePaymentPlanCommand(
+
+        // ✅ DATOS DE CONTEXTO (para validaciones)
+        Long clientId,
+        Long propertyId,
+        Long salesManId,
+        boolean applyBono,
+
         // Datos del préstamo
-        double assetSalePrice,           // Precio de Venta del Activo
+        //double assetSalePrice,           // Precio de Venta del Activo
         double downPaymentPercentage,    // % Cuota Inicial
         int years,                       // Nº de Años
         int paymentFrequency,            // Frecuencia de pago (días)
@@ -31,7 +38,7 @@ public record CreatePaymentPlanCommand(
         double discountRate,             // Tasa de descuento
 
         // Configuración
-        Currency currency,               // Moneda
+        //Currency currency,               // Moneda
         InterestRateType interestRateType, // Tipo de tasa
 
         // Periodos de gracia (opcional)
@@ -42,11 +49,13 @@ public record CreatePaymentPlanCommand(
 
         double annualInterestRate,
         List<InterestRateConfig> interestRateConfigs
+
+
 ) {
     public CreatePaymentPlanCommand {
-        if (assetSalePrice <= 0) {
-            throw new IllegalArgumentException("El precio de venta debe ser mayor a 0");
-        }
+//        if (assetSalePrice <= 0) {
+//            throw new IllegalArgumentException("El precio de venta debe ser mayor a 0");
+//        }
         if (downPaymentPercentage < 0 || downPaymentPercentage > 100) {
             throw new IllegalArgumentException("El porcentaje de cuota inicial debe estar entre 0 y 100");
         }
@@ -92,9 +101,9 @@ public record CreatePaymentPlanCommand(
         if (discountRate < 0) {
             throw new IllegalArgumentException("La tasa de descuento no puede ser negativa");
         }
-        if (currency == null) {
-            throw new IllegalArgumentException("La moneda no puede ser nula");
-        }
+//        if (currency == null) {
+//            throw new IllegalArgumentException("La moneda no puede ser nula");
+//        }
         if (interestRateType == null) {
             throw new IllegalArgumentException("El tipo de tasa no puede ser nulo");
         }

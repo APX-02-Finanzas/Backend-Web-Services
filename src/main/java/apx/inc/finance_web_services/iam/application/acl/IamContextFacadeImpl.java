@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -44,16 +45,29 @@ public class IamContextFacadeImpl implements IamContextFacade {
 
             if (userOpt.isPresent()) {
                 User user = userOpt.get();
-                // Validar que sea salesman
+
+                // LOG TEMPORAL PARA DEBUG
+                log.info("Usuario encontrado: ID={}, Username={}", user.getId(), user.getUsername());
+                log.info("Roles del usuario: {}", user.getUserRoles().stream()
+                        .map(role -> role.getName())
+                        .collect(Collectors.toList()));
+
+                // Validar que sea salesman - COMPARACIÓN CASE-INSENSITIVE
                 boolean isSalesMan = user.getUserRoles().stream()
-                        .anyMatch(role -> "ROLE_SALESMAN".equals(role.getName()));
+                        .anyMatch(role -> "ROLE_SALESMAN".equalsIgnoreCase(role.getName().name()));
 
                 if (isSalesMan) {
                     log.debug("Salesman válido encontrado: {} - {}", salesManId, user.getUsername());
                     return userOpt;
                 } else {
-                    log.warn("Usuario {} no tiene rol SALESMAN", salesManId);
+                    log.warn("Usuario {} no tiene rol SALESMAN. Roles actuales: {}",
+                            salesManId,
+                            user.getUserRoles().stream()
+                                    .map(role -> role.getName())
+                                    .collect(Collectors.toList()));
                 }
+            } else {
+                log.warn("Usuario con ID {} no encontrado", salesManId);
             }
 
             return Optional.empty();

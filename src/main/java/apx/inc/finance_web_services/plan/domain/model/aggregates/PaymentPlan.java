@@ -76,6 +76,13 @@ public class PaymentPlan extends AuditableAbstractAggregateRoot<PaymentPlan> {
 
     private double annualInterestRate;  // Campo básico como los otros
 
+    // NEW FIELDS
+    private Long clientId;
+    private Long propertyId;
+    private Long salesManId;
+    private boolean bonusApplied;
+    private Double bonusAmount;
+
     @ElementCollection
     private List<InterestRateConfig> interestRateConfigs = new ArrayList<>();
 
@@ -114,37 +121,48 @@ public class PaymentPlan extends AuditableAbstractAggregateRoot<PaymentPlan> {
         this.discountRate = 0.0;
     }
 
-    public PaymentPlan(CreatePaymentPlanCommand command) {
-        // Datos del préstamo
-        this.assetSalePrice = command.assetSalePrice();
+    public PaymentPlan(CreatePaymentPlanCommand command,
+                       Double assetSalePrice,
+                       Currency currency,
+                       boolean bonusApplied,
+                       Double bonusAmount) {
+
+        // Datos que vienen del Property (NO del Command)
+        this.assetSalePrice = assetSalePrice;
+        this.currency = currency;
+
+        // Datos del bono
+        this.bonusApplied = bonusApplied;
+        this.bonusAmount = bonusAmount;
+
+        // ✅ TODOS los datos del Command
         this.downPaymentPercentage = command.downPaymentPercentage();
         this.years = command.years();
         this.paymentFrequency = command.paymentFrequency();
         this.daysPerYear = command.daysPerYear();
-        this.currency = command.currency();
         this.interestRateType = command.interestRateType();
 
-        // Costos iniciales
+        // Costos del Command
         this.notarialCosts = command.notarialCosts();
         this.registryCosts = command.registryCosts();
         this.appraisal = command.appraisal();
         this.studyCommission = command.studyCommission();
         this.activationCommission = command.activationCommission();
-
-        // Costos periódicos
         this.periodicCommission = command.periodicCommission();
         this.postage = command.postage();
         this.administrationFees = command.administrationFees();
         this.creditLifeInsurance = command.creditLifeInsurance();
         this.riskInsurance = command.riskInsurance();
-
-        // Costo oportunidad
         this.discountRate = command.discountRate();
 
         this.annualInterestRate = command.annualInterestRate();
         this.interestRateConfigs = new ArrayList<>(command.interestRateConfigs());
 
-        // Inicializar valores calculados en 0
+        // ✅ Referencias nuevas del Command
+        this.clientId = command.clientId();
+        this.propertyId = command.propertyId();
+        this.salesManId = command.salesManId();
+
         initializeCalculatedValuesToZero();
     }
 
@@ -205,9 +223,16 @@ public class PaymentPlan extends AuditableAbstractAggregateRoot<PaymentPlan> {
         if (discountRate == 0) {
             return 0;
         }
-        // Fórmula: (1 + tasa_anual)^(frecuencia/días_año) - 1
-        double periodsPerYear = (double) daysPerYear / paymentFrequency;
-        return Math.pow(1 + discountRate, 1.0 / periodsPerYear) - 1;
+        // ✅ CORREGIR: discountRate es 27% ANUAL, convertir a periódica
+        double annualDiscountRateDecimal = discountRate / 100.0; // 0.27
+
+        double frequencyRatio = (double) paymentFrequency / daysPerYear; // 90/360 = 0.25
+
+        // Fórmula: (1 + TEA)^(frecuencia/días_año) - 1
+        double periodicRate = Math.pow(1 + annualDiscountRateDecimal, frequencyRatio) - 1;
+
+        // Debería dar: (1.27)^0.25 - 1 ≈ 0.0615756 (6.15756%)
+        return periodicRate;
     }
 
     public double getAnnualRateForInstallment(int installmentNumber) {
@@ -226,9 +251,22 @@ public class PaymentPlan extends AuditableAbstractAggregateRoot<PaymentPlan> {
     public double getPeriodicRateForInstallment(int installmentNumber) {
         double annualRate = getAnnualRateForInstallment(installmentNumber);
 
+        // ✅ CORREGIR: Convertir porcentaje a decimal si es necesario
+        double annualRateDecimal = annualRate;
+
+        // Si la tasa viene como 11 (11%), convertir a 0.11
+        if (annualRate > 1) {
+            annualRateDecimal = annualRate / 100.0;
+            System.out.println("DEBUG: Converted annualRate " + annualRate + " to " + annualRateDecimal);
+        }
+
         // ✅ FÓRMULA CORRECTA: (1 + TEA)^(frecuencia/días_año) - 1
         double frequencyRatio = (double) paymentFrequency / daysPerYear;
-        double exactPeriodicRate = Math.pow(1 + annualRate, frequencyRatio) - 1;
+        double exactPeriodicRate = Math.pow(1 + annualRateDecimal, frequencyRatio) - 1;
+
+        System.out.println("DEBUG: annualRateDecimal=" + annualRateDecimal +
+                ", frequencyRatio=" + frequencyRatio +
+                ", periodicRate=" + exactPeriodicRate);
 
         // ✅ REDONDEAR como tu Excel (5 decimales)
         return Math.round(exactPeriodicRate * 100000.0) / 100000.0;
