@@ -41,11 +41,16 @@ public class PaymentPlan extends AuditableAbstractAggregateRoot<PaymentPlan> {
     // Costo de oportunidad
     private double discountRate;             // Tasa de descuento
 
-    // Configuración
+
     @Enumerated(EnumType.STRING)
     private Currency currency;                  // Moneda
+
+    // Configuración
     @Enumerated(EnumType.STRING)
     private InterestRateType interestRateType; // Tipo de tasa
+    private double annualInterestRate;
+    @ElementCollection
+    private List<InterestRateConfig> interestRateConfigs = new ArrayList<>();
 
     // Resultados calculados
     private double financedBalance;          // Saldo a financiar
@@ -74,17 +79,15 @@ public class PaymentPlan extends AuditableAbstractAggregateRoot<PaymentPlan> {
     private double effectiveAnnualCostRate;  // TCEA
     private double npv;                      // VAN
 
-    private double annualInterestRate;  // Campo básico como los otros
+      // Campo básico como los otros
 
     // NEW FIELDS
     private Long clientId;
     private Long propertyId;
     private Long salesManId;
-    private boolean bonusApplied;
-    private Double bonusAmount;
+    private double bonusAmount;
 
-    @ElementCollection
-    private List<InterestRateConfig> interestRateConfigs = new ArrayList<>();
+
 
 
     protected PaymentPlan() {
@@ -124,7 +127,6 @@ public class PaymentPlan extends AuditableAbstractAggregateRoot<PaymentPlan> {
     public PaymentPlan(CreatePaymentPlanCommand command,
                        Double assetSalePrice,
                        Currency currency,
-                       boolean bonusApplied,
                        Double bonusAmount) {
 
         // Datos que vienen del Property (NO del Command)
@@ -132,10 +134,9 @@ public class PaymentPlan extends AuditableAbstractAggregateRoot<PaymentPlan> {
         this.currency = currency;
 
         // Datos del bono
-        this.bonusApplied = bonusApplied;
         this.bonusAmount = bonusAmount;
 
-        // ✅ TODOS los datos del Command
+        // TODOS los datos del Command
         this.downPaymentPercentage = command.downPaymentPercentage();
         this.years = command.years();
         this.paymentFrequency = command.paymentFrequency();
@@ -158,7 +159,7 @@ public class PaymentPlan extends AuditableAbstractAggregateRoot<PaymentPlan> {
         this.annualInterestRate = command.annualInterestRate();
         this.interestRateConfigs = new ArrayList<>(command.interestRateConfigs());
 
-        // ✅ Referencias nuevas del Command
+        // Referencias nuevas del Command
         this.clientId = command.clientId();
         this.propertyId = command.propertyId();
         this.salesManId = command.salesManId();

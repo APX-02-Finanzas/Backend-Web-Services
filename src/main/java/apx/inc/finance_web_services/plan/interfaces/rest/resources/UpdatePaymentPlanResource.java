@@ -1,15 +1,12 @@
 package apx.inc.finance_web_services.plan.interfaces.rest.resources;
 
-import apx.inc.finance_web_services.plan.domain.model.valueobjects.Currency;
-import apx.inc.finance_web_services.plan.domain.model.valueobjects.GracePeriodConfig;
-import apx.inc.finance_web_services.plan.domain.model.valueobjects.InterestRateType;
-import apx.inc.finance_web_services.plan.domain.model.valueobjects.PrepaymentConfig;
+import apx.inc.finance_web_services.plan.domain.model.valueobjects.*;
 
 import java.util.List;
 
 public record UpdatePaymentPlanResource(
         // Datos básicos del préstamo
-        double assetSalePrice,
+        //double assetSalePrice,
         double downPaymentPercentage,
         int years,
         int paymentFrequency,
@@ -28,9 +25,11 @@ public record UpdatePaymentPlanResource(
         double riskInsurance,
         // Costo oportunidad
         double discountRate,
+
         // Configuración
-        Currency currency,
         InterestRateType interestRateType,
+        double annualInterestRate,
+        List<InterestRateConfig> interestRateConfigs,
         // Periodos de gracia (opcional)
         List<GracePeriodConfig> gracePeriods,
         // Prepagos (opcional)

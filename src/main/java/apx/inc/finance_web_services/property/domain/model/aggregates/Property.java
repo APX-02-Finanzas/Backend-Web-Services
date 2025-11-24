@@ -18,6 +18,8 @@ public class Property extends AuditableAbstractAggregateRoot<Property> {
     private String title;
     private String description;
     private double price;
+    private double m2;
+    private short rooms;
 
     @Enumerated(EnumType.STRING)
     private Currency currency;
@@ -36,6 +38,8 @@ public class Property extends AuditableAbstractAggregateRoot<Property> {
         this.title = command.title();
         this.description = command.description();
         this.price = command.price();
+        this.m2= command.m2();
+        this.rooms = command.rooms();
         this.currency = command.currency();
         this.address = command.address();
         this.salesManId = command.salesManId();
@@ -46,6 +50,8 @@ public class Property extends AuditableAbstractAggregateRoot<Property> {
         this.title = command.title();
         this.description = command.description();
         this.price = command.price();
+        this.m2= command.m2();
+        this.rooms = command.rooms();
         this.currency = command.currency();
         this.address = command.address();
     }

@@ -4,6 +4,7 @@ import apx.inc.finance_web_services.plan.domain.model.aggregates.PaymentPlan;
 import apx.inc.finance_web_services.plan.domain.model.entities.Installment;
 import apx.inc.finance_web_services.plan.domain.model.valueobjects.GracePeriodConfig;
 import apx.inc.finance_web_services.plan.domain.model.valueobjects.GracePeriodType;
+import apx.inc.finance_web_services.plan.domain.model.valueobjects.InterestRateConfig;
 import apx.inc.finance_web_services.plan.domain.model.valueobjects.PrepaymentConfig;
 import apx.inc.finance_web_services.plan.domain.services.FinancialCalculatorService;
 import lombok.extern.slf4j.Slf4j;
@@ -383,39 +384,60 @@ public class FinancialCalculatorServiceImpl implements FinancialCalculatorServic
     }
 
     @Override
-    public void recalculatePaymentPlan(PaymentPlan paymentPlan) {
+    public void recalculatePaymentPlan(PaymentPlan paymentPlan,
+                                       List<GracePeriodConfig> gracePeriods,
+                                       List<PrepaymentConfig> prepayments,
+                                       List<InterestRateConfig> interestRateConfigs) {
         log.info("Recalculando completamente el plan de pagos ID: {}", paymentPlan.getId());
 
-        // Guardar los datos originales que queremos preservar
-        double originalLoanAmount = paymentPlan.getLoanAmount();
-        List<Installment> originalInstallments = new ArrayList<>(paymentPlan.getInstallments());
-
         try {
-            // 1. Limpiar cuotas existentes (excepto la cuota 0 - desembolso)
-            List<Installment> installmentsToKeep = paymentPlan.getInstallments().stream()
-                    .filter(inst -> inst.getNumber() == 0)
-                    .collect(Collectors.toList());
+            // ✅ 1. VERIFICAR Y LIMPIAR COMPLETAMENTE LAS CUOTAS EXISTENTES
+            log.info("Cuotas ANTES de limpiar: {}", paymentPlan.getInstallments().size());
 
+            // ❌ PROBLEMA: Solo limpiar la lista no elimina de BD
+            // paymentPlan.getInstallments().clear();
+
+            // ✅ SOLUCIÓN: Eliminar explícitamente cada cuota
+            List<Installment> installmentsToDelete = new ArrayList<>(paymentPlan.getInstallments());
             paymentPlan.getInstallments().clear();
-            paymentPlan.getInstallments().addAll(installmentsToKeep);
 
-            // 2. Recalcular valores iniciales (por si cambió algún costo)
+            // Si tienes un repository de Installment, elimínalas explícitamente
+            // installmentRepository.deleteAll(installmentsToDelete);
+
+            log.info("Cuotas DESPUÉS de limpiar: {}", paymentPlan.getInstallments().size());
+
+            // ✅ 2. Recalcular valores iniciales
             paymentPlan.calculateInitialValues();
 
-            // 3. Regenerar cuotas (usando gracePeriods y prepayments vacíos por ahora)
-            // TODO: En el futuro, podríamos preservar la configuración original
-            generateInstallments(paymentPlan, new ArrayList<>(), new ArrayList<>());
+            // ✅ 3. Crear SOLO UNA cuota de desembolso
+            Installment disbursementInstallment = createDisbursementInstallment(paymentPlan);
+            paymentPlan.addInstallment(disbursementInstallment);
+            log.info("Cuota 0 (desembolso) creada - Cash Flow: {}", disbursementInstallment.getCashFlow());
 
-            // 4. Recalcular indicadores financieros
+            // ✅ 4. Generar el resto de cuotas
+            double currentBalance = paymentPlan.getLoanAmount();
+            log.info("Balance inicial para cuotas: {}", currentBalance);
+
+            for (int i = 1; i <= paymentPlan.getTotalInstallments(); i++) {
+                GracePeriodType gracePeriodType = getGracePeriodTypeForInstallment(i, gracePeriods);
+                double prepaymentAmount = getPrepaymentForInstallment(i, prepayments);
+
+                Installment installment = calculateInstallment(
+                        i, currentBalance, paymentPlan, gracePeriodType, prepaymentAmount
+                );
+
+                paymentPlan.addInstallment(installment);
+                currentBalance = installment.getFinalBalance();
+            }
+
+            // ✅ 5. Calcular totales e indicadores
+            calculateTotals(paymentPlan);
             calculateFinancialIndicators(paymentPlan);
 
-            log.info("Recálculo completado exitosamente");
+            log.info("Recálculo completado. Total cuotas generadas: {}", paymentPlan.getInstallments().size());
 
         } catch (Exception e) {
-            // En caso de error, restaurar el estado original
-            log.error("Error en recálculo, restaurando estado original", e);
-            paymentPlan.getInstallments().clear();
-            paymentPlan.getInstallments().addAll(originalInstallments);
+            log.error("Error en recálculo", e);
             throw new RuntimeException("Error al recalcular el plan de pagos", e);
         }
     }

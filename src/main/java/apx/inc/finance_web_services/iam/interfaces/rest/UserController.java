@@ -46,7 +46,6 @@ public class UserController {
         throw new RuntimeException("Invalid principal type");
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/{id}")
     @Operation(summary = "Update a user by ID", description = "Update a specific user (admin operation).")
     @ApiResponses(value = {
@@ -72,8 +71,6 @@ public class UserController {
     }
 
 
-
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{userId}")
     @Operation(summary = "Delete a user", description = "Deletes a user by its ID.")
     @ApiResponses(value = {

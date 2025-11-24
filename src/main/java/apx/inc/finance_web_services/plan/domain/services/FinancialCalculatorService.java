@@ -4,6 +4,7 @@ import apx.inc.finance_web_services.plan.domain.model.aggregates.PaymentPlan;
 import apx.inc.finance_web_services.plan.domain.model.entities.Installment;
 import apx.inc.finance_web_services.plan.domain.model.valueobjects.GracePeriodConfig;
 import apx.inc.finance_web_services.plan.domain.model.valueobjects.GracePeriodType;
+import apx.inc.finance_web_services.plan.domain.model.valueobjects.InterestRateConfig;
 import apx.inc.finance_web_services.plan.domain.model.valueobjects.PrepaymentConfig;
 
 import java.util.List;
@@ -39,5 +40,8 @@ public interface FinancialCalculatorService {
 
     double getPrepaymentForInstallment(int installmentNumber, List<PrepaymentConfig> prepayments);
 
-    void recalculatePaymentPlan(PaymentPlan paymentPlan);
+    void recalculatePaymentPlan(PaymentPlan paymentPlan,
+                                List<GracePeriodConfig> gracePeriods,
+                                List<PrepaymentConfig> prepayments,
+                                List<InterestRateConfig> interestRateConfigs);
 }

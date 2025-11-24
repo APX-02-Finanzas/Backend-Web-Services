@@ -12,13 +12,13 @@ public class CreatePaymentPlanCommandFromResourceAssembler {
                 resource.clientId(),
                 resource.propertyId(),
                 resource.salesManId(),
-                resource.applyBono(),
 
 //                resource.assetSalePrice(),           // Precio de Venta del Activo
                 resource.downPaymentPercentage(),    // % Cuota Inicial
                 resource.years(),                    // Nº de Años
                 resource.paymentFrequency(),         // Frecuencia de pago (días)
                 resource.daysPerYear(),              // Nº de días por año
+
                 resource.notarialCosts(),            // Costes Notariales
                 resource.registryCosts(),            // Costes Registrales
                 resource.appraisal(),                // Tasación
@@ -36,17 +36,15 @@ public class CreatePaymentPlanCommandFromResourceAssembler {
                 resource.discountRate(),             // Tasa de descuento
 
 
-//                resource.currency(),               // Moneda
                 resource.interestRateType(),         // Tipo de tasa
-
+                resource.annualInterestRate(),
+                resource.interestRateConfigs(),
 
                 resource.gracePeriods(),
 
 
-                resource.prepayments(),
+                resource.prepayments()
 
-                resource.annualInterestRate(),
-                resource.interestRateConfigs()// Tasa de interés (%)
 
 
         );

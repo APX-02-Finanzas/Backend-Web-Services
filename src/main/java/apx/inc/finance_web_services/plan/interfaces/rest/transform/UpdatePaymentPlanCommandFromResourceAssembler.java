@@ -9,7 +9,7 @@ public class UpdatePaymentPlanCommandFromResourceAssembler {
         return new UpdatePaymentPlanCommand(
                 paymentPlanId,
                 // Datos básicos del préstamo
-                resource.assetSalePrice(),
+                //resource.assetSalePrice(),
                 resource.downPaymentPercentage(),
                 resource.years(),
                 resource.paymentFrequency(),
@@ -28,10 +28,12 @@ public class UpdatePaymentPlanCommandFromResourceAssembler {
                 resource.riskInsurance(),
                 // Costo oportunidad
                 resource.discountRate(),
+
                 // Configuración
-                resource.currency(),
                 resource.interestRateType(),
                 // Periodos de gracia (opcional)
+                resource.annualInterestRate(),
+                resource.interestRateConfigs(),
                 resource.gracePeriods(),
                 // Prepagos (opcional)
                 resource.prepayments()

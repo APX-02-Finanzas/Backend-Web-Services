@@ -48,27 +48,22 @@ public class PaymentPlanCommandServiceImpl implements PaymentPlanCommandService 
 
             // ✅ 3. CALCULAR BONO (NUEVO)
             Double bonusAmount = 0.0;
-            boolean bonusApplied = false;
+            bonusAmount = calculateBonusAmount(property.getPrice());
 
-            if (command.applyBono()) {
-                bonusAmount = calculateBonusAmount(property.getPrice());
-                bonusApplied = (bonusAmount > 0);
-                log.info("Bono aplicado: {} - Monto: S/ {}", bonusApplied, bonusAmount);
-            }
 
             // ✅ 4. CALCULAR PRECIO EFECTIVO (NUEVO)
             double effectivePrice = property.getPrice();
-            if (bonusApplied) {
-                effectivePrice = property.getPrice() - bonusAmount;
-                log.info("Precio original: S/ {}, Precio con bono: S/ {}", property.getPrice(), effectivePrice);
-            }
+
+            effectivePrice = property.getPrice() - bonusAmount;
+            log.info("Precio original: S/ {}, Precio con bono: S/ {}", property.getPrice(), effectivePrice);
+
 
             // ✅ 5. CREAR PAYMENT PLAN CON NUEVO CONSTRUCTOR (CORREGIDO)
             PaymentPlan paymentPlan = new PaymentPlan(
                     command,
                     effectivePrice,           // assetSalePrice desde Property
                     property.getCurrency(),   // currency desde Property
-                    bonusApplied,
+
                     bonusAmount
             );
 
@@ -131,11 +126,62 @@ public class PaymentPlanCommandServiceImpl implements PaymentPlanCommandService 
         PaymentPlan paymentPlan = paymentPlanRepository.findById(command.paymentPlanId())
                 .orElseThrow(() -> new IllegalArgumentException("Plan de pagos no encontrado con ID: " + command.paymentPlanId()));
 
-        // Lógica de actualización simple: recálculo completo
-        financialCalculatorService.recalculatePaymentPlan(paymentPlan);
+        try {
+            // ✅ LOG PARA DEBUG
+            log.info("Valores del comando - annualInterestRate: {}, periodicCommission: {}",
+                    command.annualInterestRate(), command.periodicCommission());
+            log.info("Valores actuales del PaymentPlan - annualInterestRate: {}, periodicCommission: {}",
+                    paymentPlan.getAnnualInterestRate(), paymentPlan.getPeriodicCommission());
 
-        paymentPlanRepository.save(paymentPlan);
-        log.info("Plan de pagos actualizado exitosamente");
+            // ✅ ACTUALIZAR los campos del paymentPlan con los nuevos valores
+            updatePaymentPlanFields(paymentPlan, command);
+
+            // ✅ RECALCULAR usando los NUEVOS parámetros
+            financialCalculatorService.recalculatePaymentPlan(
+                    paymentPlan,
+                    command.gracePeriods(),
+                    command.prepayments(),
+                    command.interestRateConfigs()
+            );
+
+            paymentPlanRepository.save(paymentPlan);
+            log.info("Plan de pagos actualizado exitosamente");
+
+        } catch (Exception e) {
+            log.error("Error al actualizar el plan de pagos ID: {}", command.paymentPlanId(), e);
+            throw new RuntimeException("Error interno al actualizar el plan: " + e.getMessage(), e);
+        }
+    }
+
+    private void updatePaymentPlanFields(PaymentPlan paymentPlan, UpdatePaymentPlanCommand command) {
+        // Actualizar campos básicos
+        paymentPlan.setDownPaymentPercentage(command.downPaymentPercentage());
+        paymentPlan.setYears(command.years());
+        paymentPlan.setPaymentFrequency(command.paymentFrequency());
+        paymentPlan.setDaysPerYear(command.daysPerYear());
+
+        paymentPlan.setAnnualInterestRate(command.annualInterestRate());
+
+        // Actualizar costos y comisiones
+        paymentPlan.setNotarialCosts(command.notarialCosts());
+        paymentPlan.setRegistryCosts(command.registryCosts());
+        paymentPlan.setAppraisal(command.appraisal());
+        paymentPlan.setStudyCommission(command.studyCommission());
+        paymentPlan.setActivationCommission(command.activationCommission());
+        paymentPlan.setPeriodicCommission(command.periodicCommission());
+        paymentPlan.setPostage(command.postage());
+        paymentPlan.setAdministrationFees(command.administrationFees());
+
+        // Actualizar seguros y tasas
+        paymentPlan.setCreditLifeInsurance(command.creditLifeInsurance());
+        paymentPlan.setRiskInsurance(command.riskInsurance());
+        paymentPlan.setDiscountRate(command.discountRate());
+        paymentPlan.setInterestRateType(command.interestRateType());
+
+        // Actualizar configuraciones de tasas
+        paymentPlan.setInterestRateConfigs(command.interestRateConfigs());
+
+        log.info("Campos del PaymentPlan actualizados con nuevos valores");
     }
 
 
@@ -165,4 +211,6 @@ public class PaymentPlanCommandServiceImpl implements PaymentPlanCommandService 
         else if (propertyPrice <= 427600.0) return 41350.0;
         else return 0.0;
     }
+
+
 }

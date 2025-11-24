@@ -9,6 +9,9 @@ public class UserResourceFromEntityAssembler {
         return new UserResource(
                 user.getId(),
                 user.getUsername(),
+                user.getName(),
+                user.getSurname(),
+                user.getEmail(),
                 user.getUserRoles().stream().map(Role::getName).toList()
         );
     }

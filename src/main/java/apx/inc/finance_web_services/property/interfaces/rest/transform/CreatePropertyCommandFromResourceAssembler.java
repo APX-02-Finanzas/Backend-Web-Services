@@ -10,6 +10,8 @@ public class CreatePropertyCommandFromResourceAssembler {
                 resource.title(),
                 resource.description(),
                 resource.price(),
+                resource.m2(),
+                resource.rooms(),
                 resource.currency(),
                 resource.address(),
                 resource.salesManId()

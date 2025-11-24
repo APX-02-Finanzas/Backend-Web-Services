@@ -11,7 +11,6 @@ public record CreatePaymentPlanCommand(
         Long clientId,
         Long propertyId,
         Long salesManId,
-        boolean applyBono,
 
         // Datos del préstamo
         //double assetSalePrice,           // Precio de Venta del Activo
@@ -40,15 +39,16 @@ public record CreatePaymentPlanCommand(
         // Configuración
         //Currency currency,               // Moneda
         InterestRateType interestRateType, // Tipo de tasa
+        double annualInterestRate,
+        List<InterestRateConfig> interestRateConfigs,
 
         // Periodos de gracia (opcional)
         List<GracePeriodConfig> gracePeriods,
 
         // Prepagos (opcional)
-        List<PrepaymentConfig> prepayments,
+        List<PrepaymentConfig> prepayments
 
-        double annualInterestRate,
-        List<InterestRateConfig> interestRateConfigs
+
 
 
 ) {
@@ -59,13 +59,13 @@ public record CreatePaymentPlanCommand(
         if (downPaymentPercentage < 0 || downPaymentPercentage > 100) {
             throw new IllegalArgumentException("El porcentaje de cuota inicial debe estar entre 0 y 100");
         }
-        if (years <= 0) {
+        if (years < 0) {
             throw new IllegalArgumentException("El número de años debe ser mayor a 0");
         }
-        if (paymentFrequency <= 0) {
+        if (paymentFrequency < 0) {
             throw new IllegalArgumentException("La frecuencia de pago debe ser mayor a 0");
         }
-        if (daysPerYear <= 0) {
+        if (daysPerYear < 0) {
             throw new IllegalArgumentException("Los días por año deben ser mayor a 0");
         }
         if (notarialCosts < 0) {

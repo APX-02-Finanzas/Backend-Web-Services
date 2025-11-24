@@ -11,6 +11,8 @@ public class UpdatePropertyCommandFromResourceAssembler {
                 resource.title(),
                 resource.description(),
                 resource.price(),
+                resource.m2(),
+                resource.rooms(),
                 resource.currency(),
                 resource.address()
         );

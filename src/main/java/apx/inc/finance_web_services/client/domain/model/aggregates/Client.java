@@ -17,7 +17,7 @@ public class Client extends AuditableAbstractAggregateRoot<Client> {
     private String phone;
     private String dni;
 
-    // ✅ NUEVO: Para filtrar por salesman
+    // NUEVO: Para filtrar por salesman
     private Long salesManId;
 
     // Información económica básica
@@ -27,11 +27,11 @@ public class Client extends AuditableAbstractAggregateRoot<Client> {
     // Validaciones bono Techo Propio (simplificado)
     private boolean hasPreviousStateHousing;
 
-    // ✅ Constructor vacío para JPA
+    // Constructor vacío para JPA
     protected Client() {
     }
 
-    // ✅ Constructor desde Create Command
+    //  Constructor desde Create Command
     public Client(CreateClientCommand command) {
         this.name = command.name();
         this.email = command.email();
@@ -43,7 +43,7 @@ public class Client extends AuditableAbstractAggregateRoot<Client> {
         this.hasPreviousStateHousing = false; // Por defecto
     }
 
-    // ✅ Método para update (sin constructor separado)
+    //  Método para update (sin constructor separado)
     public void update(UpdateClientCommand command) {
         this.name = command.name();
         this.email = command.email();
@@ -53,12 +53,12 @@ public class Client extends AuditableAbstractAggregateRoot<Client> {
         this.monthlyExpenses = command.monthlyExpenses();
     }
 
-    // ✅ Método simplificado para bono
+    //  Método simplificado para bono
     public void markAsPreviousStateHousing() {
         this.hasPreviousStateHousing = true;
     }
 
-    // ✅ Validación simple
+    //  Validación simple
     public boolean canApplyForBono() {
         return !this.hasPreviousStateHousing;
     }

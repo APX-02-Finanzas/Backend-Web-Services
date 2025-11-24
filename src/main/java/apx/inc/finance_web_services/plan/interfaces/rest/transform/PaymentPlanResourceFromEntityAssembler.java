@@ -59,7 +59,13 @@ public class PaymentPlanResourceFromEntityAssembler {
                 paymentPlan.getPeriodicDiscountRate(),
                 paymentPlan.getIrr(),
                 paymentPlan.getEffectiveAnnualCostRate(),
-                paymentPlan.getNpv()
+                paymentPlan.getNpv(),
+
+                // Extra fields
+                paymentPlan.getClientId(),
+                paymentPlan.getPropertyId(),
+                paymentPlan.getSalesManId(),
+                paymentPlan.getBonusAmount()
         );
     }
 }

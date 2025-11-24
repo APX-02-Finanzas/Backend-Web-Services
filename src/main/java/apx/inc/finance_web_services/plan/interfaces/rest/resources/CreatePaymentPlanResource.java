@@ -10,7 +10,6 @@ public record CreatePaymentPlanResource(
         Long clientId,
         Long propertyId,
         Long salesManId,
-        boolean applyBono,
 
         // ✅ DATOS DEL PRÉSTAMO (igual que tu Command)
         double downPaymentPercentage,
@@ -37,11 +36,12 @@ public record CreatePaymentPlanResource(
 
         // ✅ CONFIGURACIÓN (igual que tu Command)
         InterestRateType interestRateType,  // String desde frontend
+        double annualInterestRate,
+        List<InterestRateConfig> interestRateConfigs,
 
         // ✅ OPCIONALES (igual que tu Command)
         List<GracePeriodConfig> gracePeriods,
-        List<PrepaymentConfig> prepayments,
+        List<PrepaymentConfig> prepayments
 
-        double annualInterestRate,
-        List<InterestRateConfig> interestRateConfigs
+
 ) {}

@@ -58,6 +58,11 @@ public record PaymentPlanResource(
         double periodicDiscountRate,     // Tasa de descuento periódica
         double irr,                      // TIR de la operación
         double effectiveAnnualCostRate,  // TCEA de la operación
-        double npv                       // VAN operación
+        double npv,                       // VAN operación
 
+        // Extra fields
+        Long clientId,
+        Long propertyId,
+        Long SalesManId,
+        double bonusAmount
 ) {}

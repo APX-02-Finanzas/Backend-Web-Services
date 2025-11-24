@@ -11,6 +11,8 @@ public class PropertyResourceFromEntityAssembler {
                 property.getTitle(),
                 property.getDescription(),
                 property.getPrice(),
+                property.getM2(),
+                property.getRooms(),
                 property.getCurrency(),
                 property.getAddress(),
                 property.getSalesManId(),

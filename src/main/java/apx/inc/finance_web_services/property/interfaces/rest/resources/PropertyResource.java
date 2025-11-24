@@ -9,6 +9,8 @@ public record PropertyResource(
         String title,
         String description,
         double price,
+        double m2,
+        short rooms,
         Currency currency,
         String address,
         Long salesManId,

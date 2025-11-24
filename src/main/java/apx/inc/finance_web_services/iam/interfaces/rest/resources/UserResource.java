@@ -7,5 +7,8 @@ import java.util.List;
 public record UserResource(
         Long id,
         String username,
+        String name,
+        String surname,
+        String email,
         List<Roles> roles
 ) { }
