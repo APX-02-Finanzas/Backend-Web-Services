@@ -9,6 +9,8 @@ public class UpdateClientCommandFromResourceAssembler {
         return new UpdateClientCommand(
                 clientId,
                 resource.name(),
+                resource.surname(),
+                resource.civilState(),
                 resource.email(),
                 resource.phone(),
                 resource.dni(),

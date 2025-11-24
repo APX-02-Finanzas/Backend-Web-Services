@@ -9,6 +9,8 @@ public class ClientResourceFromEntityAssembler {
         return new ClientResource(
                 client.getId(),
                 client.getName(),
+                client.getSurname(),
+                client.getCivilState(),
                 client.getEmail(),
                 client.getPhone(),
                 client.getDni(),

@@ -2,6 +2,7 @@ package apx.inc.finance_web_services.client.domain.model.aggregates;
 
 import apx.inc.finance_web_services.client.domain.model.commands.CreateClientCommand;
 import apx.inc.finance_web_services.client.domain.model.commands.UpdateClientCommand;
+import apx.inc.finance_web_services.client.domain.model.valueobjects.CivilState;
 import apx.inc.finance_web_services.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 import jakarta.persistence.Entity;
 import lombok.Getter;
@@ -13,6 +14,8 @@ import lombok.Setter;
 public class Client extends AuditableAbstractAggregateRoot<Client> {
 
     private String name;
+    private String surname;
+    private CivilState civilState;
     private String email;
     private String phone;
     private String dni;
@@ -34,6 +37,8 @@ public class Client extends AuditableAbstractAggregateRoot<Client> {
     //  Constructor desde Create Command
     public Client(CreateClientCommand command) {
         this.name = command.name();
+        this.surname= command.surname();
+        this.civilState = command.civilState();
         this.email = command.email();
         this.phone = command.phone();
         this.dni = command.dni();
@@ -46,6 +51,8 @@ public class Client extends AuditableAbstractAggregateRoot<Client> {
     //  Método para update (sin constructor separado)
     public void update(UpdateClientCommand command) {
         this.name = command.name();
+        this.surname= command.surname();
+        this.civilState = command.civilState();
         this.email = command.email();
         this.phone = command.phone();
         this.dni = command.dni();

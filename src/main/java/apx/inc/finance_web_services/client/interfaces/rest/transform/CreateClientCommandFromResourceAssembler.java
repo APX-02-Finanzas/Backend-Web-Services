@@ -8,6 +8,8 @@ public class CreateClientCommandFromResourceAssembler {
     public static CreateClientCommand toCommandFromResource(CreateClientResource resource) {
         return new CreateClientCommand(
                 resource.name(),
+                resource.surname(),
+                resource.civilState(),
                 resource.email(),
                 resource.phone(),
                 resource.dni(),
