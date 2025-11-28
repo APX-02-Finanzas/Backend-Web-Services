@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/captcha")
+@RequestMapping("/api/v1/captcha")
 @Tag(name = "CAPTCHA", description = "Endpoints para verificación CAPTCHA")
 public class CaptchaController {
 
