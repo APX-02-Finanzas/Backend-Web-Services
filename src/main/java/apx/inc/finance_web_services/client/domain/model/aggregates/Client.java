@@ -3,6 +3,7 @@ package apx.inc.finance_web_services.client.domain.model.aggregates;
 import apx.inc.finance_web_services.client.domain.model.commands.CreateClientCommand;
 import apx.inc.finance_web_services.client.domain.model.commands.UpdateClientCommand;
 import apx.inc.finance_web_services.client.domain.model.valueobjects.CivilState;
+import apx.inc.finance_web_services.client.domain.services.EncryptionService;
 import apx.inc.finance_web_services.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 import jakarta.persistence.Entity;
 import lombok.Getter;
@@ -33,6 +34,8 @@ public class Client extends AuditableAbstractAggregateRoot<Client> {
     // Constructor vacío para JPA
     protected Client() {
     }
+
+
 
     //  Constructor desde Create Command
     public Client(CreateClientCommand command) {
