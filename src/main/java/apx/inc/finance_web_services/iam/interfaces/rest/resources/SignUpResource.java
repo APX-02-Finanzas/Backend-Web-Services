@@ -10,6 +10,7 @@ public record SignUpResource(
         String name,
         String surname,
         String email,
-        List<Roles> roles
+        List<Roles> roles,
+        String recaptchaToken
 ) {
 }

@@ -11,7 +11,8 @@ public record SignUpCommand(
         String name,
         String surname,
         String email,
-        List<Roles> roles
+        List<Roles> roles,
+        String recaptchaToken
 ) {
     public SignUpCommand {
         if (userName==null||userName.isBlank()) {
@@ -31,6 +32,9 @@ public record SignUpCommand(
         }
         if (roles==null||roles.isEmpty()) {
             throw new IllegalArgumentException("Roles cannot be empty");
+        }
+        if (recaptchaToken==null||recaptchaToken.isBlank()) {
+            throw new IllegalArgumentException("Recaptcha token cannot be empty");
         }
     }
 }

@@ -7,28 +7,28 @@ import apx.inc.finance_web_services.iam.domain.model.commands.*;
 import apx.inc.finance_web_services.iam.domain.services.UserCommandService;
 import apx.inc.finance_web_services.iam.infrastructure.persistence.jpa.repositories.RoleRepository;
 import apx.inc.finance_web_services.iam.infrastructure.persistence.jpa.repositories.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UserCommandServiceImpl implements UserCommandService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final HashingService hashingService;
     private final TokenService tokenService;
+    private final RecaptchaService recaptchaService;
 
-    public UserCommandServiceImpl(UserRepository userRepository, RoleRepository roleRepository, HashingService hashingService, TokenService tokenService) {
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.hashingService = hashingService;
-        this.tokenService = tokenService;
-    }
+
 
     @Override
     public Optional<User> handle(UpdateUserCommand updateUserCommand, Long userId) {
+
+
 
         // Check if the user exists
         var userOptional = userRepository.findById(userId);
@@ -102,6 +102,14 @@ public class UserCommandServiceImpl implements UserCommandService {
 
     @Override
     public Optional<User> handle(SignUpCommand signUpCommand) {
+
+        // Check if the reCAPTCHA is valid
+        boolean isCaptchaValid = recaptchaService.verifyRecaptcha(signUpCommand.recaptchaToken());
+
+        if (!isCaptchaValid) {
+            throw new IllegalArgumentException("reCAPTCHA validation failed");
+        }
+
         if (userRepository.existsByUsername(signUpCommand.userName())) {
             throw new IllegalArgumentException("User with user name " + signUpCommand.userName() + " already exists");
         }

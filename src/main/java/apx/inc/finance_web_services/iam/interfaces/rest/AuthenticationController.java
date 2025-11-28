@@ -53,7 +53,9 @@ public class AuthenticationController {
     @Operation(summary = "Sign-up", description = "Sign-up with the provided credentials.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "User created successfully."),
-            @ApiResponse(responseCode = "400", description = "Bad request.")})
+            @ApiResponse(responseCode = "400", description = "Bad request."),
+            @ApiResponse(responseCode = "422", description = "reCAPTACHA validation failed.")
+    })
     public ResponseEntity<UserResource> signUp(@RequestBody SignUpResource signUpResource) {
         var signUpCommand = SignUpCommandFromResourceAssembler.toCommandFromResource(signUpResource);
         var user = userCommandService.handle(signUpCommand);

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test reCAPTCHA Debug</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .token { background: #f5f5f5; padding: 10px; word-break: break-all; font-size: 10px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Test reCAPTCHA - Debug Completo</h1>
+
+    <div class="section">
+        <h3>1. Configuración:</h3>
+        <div id="configInfo"></div>
+        <button onclick="loadConfig()">Cargar Configuración</button>
+    </div>
+
+    <div class="section">
+        <h3>2. Completa el reCAPTCHA:</h3>
+        <div class="g-recaptcha" data-sitekey="6LeZmhosAAAAAIKlm-ufSYLVCOObasU4vVBLMTv1"></div>
+        <button onclick="getToken()">Obtener Token</button>
+    </div>
+
+    <div class="section">
+        <h3>3. Token generado:</h3>
+        <div id="tokenDisplay" class="token">Esperando token...</div>
+        <div id="tokenInfo"></div>
+    </div>
+
+    <div class="section">
+        <h3>4. Pruebas paso a paso:</h3>
+        <button onclick="verifyToken()" id="verifyBtn" disabled>1. Verificar Token</button>
+        <button onclick="testRegistration()" id="registerBtn" disabled>2. Probar Registro</button>
+    </div>
+
+    <div class="section">
+        <h3>5. Resultados:</h3>
+        <div id="verifyResult"></div>
+        <div id="registerResult"></div>
+    </div>
+</div>
+
+<script>
+    let currentToken = '';
+
+    async function loadConfig() {
+        try {
+            const response = await fetch('http://localhost:8080/api/captcha/config');
+            const data = await response.json();
+            document.getElementById('configInfo').innerHTML =
+                `<div class="info">✅ Site Key: ${data.siteKey}</div>`;
+        } catch (error) {
+            document.getElementById('configInfo').innerHTML =
+                `<div class="error">❌ Error cargando configuración: ${error.message}</div>`;
+        }
+    }
+
+    function getToken() {
+        const token = grecaptcha.getResponse();
+        if (token) {
+            currentToken = token;
+            document.getElementById('tokenDisplay').textContent = token;
+            document.getElementById('tokenInfo').innerHTML =
+                `<div class="info">Longitud: ${token.length} caracteres</div>`;
+            document.getElementById('verifyBtn').disabled = false;
+            document.getElementById('registerBtn').disabled = false;
+            console.log('Token obtenido:', token);
+        } else {
+            alert('Por favor, completa el reCAPTCHA primero');
+        }
+    }
+
+    async function verifyToken() {
+        if (!currentToken) {
+            alert('No hay token para verificar');
+            return;
+        }
+
+        try {
+            const formData = new URLSearchParams();
+            formData.append('g-recaptcha-response', currentToken);
+
+            const response = await fetch('http://localhost:8080/api/captcha/verify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                document.getElementById('verifyResult').innerHTML =
+                    `<div class="success">✅ ${JSON.stringify(result, null, 2)}</div>`;
+            } else {
+                document.getElementById('verifyResult').innerHTML =
+                    `<div class="error">❌ ${JSON.stringify(result, null, 2)}</div>`;
+            }
+
+            console.log('Resultado verificación:', result);
+
+        } catch (error) {
+            document.getElementById('verifyResult').innerHTML =
+                `<div class="error">❌ Error de conexión: ${error.message}</div>`;
+        }
+    }
+
+    async function testRegistration() {
+        if (!currentToken) {
+            alert('No hay token para el registro');
+            return;
+        }
+
+        const testData = {
+            username: 'testuser_' + Date.now(),
+            password: 'TestPassword123',
+            name: 'Test',
+            surname: 'User',
+            email: 'test' + Date.now() + '@example.com',
+            roles: ['ROLE_USER'],
+            recaptchaToken: currentToken
+        };
+
+        try {
+            const response = await fetch('http://localhost:8080/api/v1/authentication/sign-up', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(testData)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                document.getElementById('registerResult').innerHTML =
+                    `<div class="success">✅ Registro exitoso: ${JSON.stringify(result, null, 2)}</div>`;
+            } else {
+                document.getElementById('registerResult').innerHTML =
+                    `<div class="error">❌ Error en registro: ${JSON.stringify(result, null, 2)}</div>`;
+            }
+
+        } catch (error) {
+            document.getElementById('registerResult').innerHTML =
+                `<div class="error">❌ Error de conexión: ${error.message}</div>`;
+        }
+    }
+
+    // Cargar configuración al iniciar
+    loadConfig();
+</script>
+</body>
+</html>

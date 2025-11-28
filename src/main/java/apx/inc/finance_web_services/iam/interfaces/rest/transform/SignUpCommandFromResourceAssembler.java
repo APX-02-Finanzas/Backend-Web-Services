@@ -11,7 +11,8 @@ public class SignUpCommandFromResourceAssembler {
                 signUpResource.name(),
                 signUpResource.surname(),
                 signUpResource.email(),
-                signUpResource.roles()
+                signUpResource.roles(),
+                signUpResource.recaptchaToken()
         );
     }
 }
