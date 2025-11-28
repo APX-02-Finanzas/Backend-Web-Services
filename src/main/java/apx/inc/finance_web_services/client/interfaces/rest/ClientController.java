@@ -1,5 +1,6 @@
 package apx.inc.finance_web_services.client.interfaces.rest;
 
+import apx.inc.finance_web_services.client.application.internal.AESEncryptionService;
 import apx.inc.finance_web_services.client.domain.model.aggregates.Client;
 import apx.inc.finance_web_services.client.domain.model.commands.CreateClientCommand;
 import apx.inc.finance_web_services.client.domain.model.commands.DeleteClientCommand;
@@ -32,6 +33,7 @@ public class ClientController {
 
     private final ClientCommandService clientCommandService;
     private final ClientQueryService clientQueryService;
+    private final AESEncryptionService encryptionService;
 
     @PostMapping
     public ResponseEntity<ClientResource> createClient(@RequestBody CreateClientResource resource) {
@@ -80,7 +82,7 @@ public class ClientController {
     public ResponseEntity<ClientResource> getClientById(@PathVariable Long clientId) {
         try {
             Client client = clientQueryService.handle(new GetClientByIdQuery(clientId));
-            ClientResource clientResource = ClientResourceFromEntityAssembler.toResourceFromEntity(client);
+            ClientResource clientResource = ClientResourceFromEntityAssembler.toResourceFromEntityStatic(client, encryptionService);
             return ResponseEntity.ok(clientResource);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
@@ -91,7 +93,7 @@ public class ClientController {
     public ResponseEntity<List<ClientResource>> getAllClients() {
         List<Client> clients = clientQueryService.handle(new GetAllClientsQuery());
         List<ClientResource> resources = clients.stream()
-                .map(ClientResourceFromEntityAssembler::toResourceFromEntity)
+                .map(client -> ClientResourceFromEntityAssembler.toResourceFromEntityStatic(client, encryptionService))
                 .toList();
         return ResponseEntity.ok(resources);
     }
@@ -100,7 +102,7 @@ public class ClientController {
     public ResponseEntity<List<ClientResource>> getClientsBySalesManId(@PathVariable Long salesManId) {
         List<Client> clients = clientQueryService.handle(new GetClientsByUserIdQuery(salesManId));
         List<ClientResource> resources = clients.stream()
-                .map(ClientResourceFromEntityAssembler::toResourceFromEntity)
+                .map(client -> ClientResourceFromEntityAssembler.toResourceFromEntityStatic(client, encryptionService))
                 .toList();
         return ResponseEntity.ok(resources);
     }
