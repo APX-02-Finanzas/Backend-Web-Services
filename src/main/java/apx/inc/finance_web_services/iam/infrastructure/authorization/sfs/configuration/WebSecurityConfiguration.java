@@ -76,7 +76,7 @@ public class WebSecurityConfiguration {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/test.html",
-                                "/api/captcha/**",
+                                "/api/v1/captcha/**",
                                 "/api/v1/authentication/**",
                                 "/v3/api-docs/**",
                                 "/api-docs/**",
