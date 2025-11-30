@@ -72,7 +72,7 @@ public class OpenApiConfiguration {
                 .description("APX Technical Documentation")
                 .url("https://docs.apx.com"));
 
-        // Servers configuration
+        // Servers configuration - Solo local y Render
         openApi.servers(getServers());
 
         // Security scheme
@@ -83,25 +83,15 @@ public class OpenApiConfiguration {
 
     private List<Server> getServers() {
         return List.of(
-                // Development Server
+                // Production Server - Render
+                new Server()
+                        .url("https://backend-web-services-zj3w.onrender.com")
+                        .description("🚀 Production - Render Cloud Deployment"),
+                // Development Server - Local
                 new Server()
                         .url("http://localhost:" + serverPort)
-                        .description("🛠️ Local Development - Port " + serverPort),
+                        .description("🛠️ Local Development - Port " + serverPort)
 
-                // Production Server
-                new Server()
-                        .url("https://" + applicationName + ".apxapps.com")
-                        .description("🚀 Production - APX Apps Cloud"),
-
-                // Staging Server
-                new Server()
-                        .url("https://staging-" + applicationName + ".apxapps.com")
-                        .description("🧪 Staging - Testing Environment"),
-
-                // Testing Server
-                new Server()
-                        .url("https://testing-" + applicationName + ".apxapps.com")
-                        .description("🔬 Testing - Quality Control")
         );
     }
 
